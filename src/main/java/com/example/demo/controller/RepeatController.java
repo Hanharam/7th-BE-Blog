@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 import com.example.demo.dto.ErrorResponseDto;
 import com.example.demo.dto.RepeatRequestDto;
-import com.example.demo.dto.RepeatResponseDto;
 import com.example.demo.service.RepeatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class RepeatController {
 
     @GetMapping("/health")
     public ResponseEntity<Void> test() {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/string/repeat")
