@@ -88,7 +88,7 @@ public class Post {
     // 수정 권한 검증
     private void validateAuthorization(Long requesterId) {
         if (!this.memberId.equals(requesterId)) {
-            throw new PostDomainException(PostErrorCode.UNAUTHORIZED_POST_UPDATE);
+            throw new PostDomainException(PostErrorCode.POST_NOT_OWNED);
         }
     }
 
@@ -123,7 +123,7 @@ public class Post {
 
     public void validateDeletionPermission(Long requesterId) {
         if (!this.memberId.equals(requesterId)) {
-            throw new PostDomainException(PostErrorCode.UNAUTHORIZED_POST_UPDATE);
+            throw new PostDomainException(PostErrorCode.POST_NOT_OWNED);
         }
     }
 
