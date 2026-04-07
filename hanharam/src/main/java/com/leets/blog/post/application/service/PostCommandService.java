@@ -51,7 +51,7 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase,
     @Override
     public PostId updatePost(UpdatePostCommand command) {
 
-        // [임시 검증] 멤버가 존재하는지 확인, 추후에 인가 시스템 적용
+        // [임시 검증] 멤버가 존재하는지 확인, 추후에 인가 시스템 적용 ABAC
         validateMemberExists(command.requesterId());
 
         // 도메인 조회
@@ -88,7 +88,6 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase,
 
     private void validateMemberExists(Long memberId) {
         if (!loadMemberPort.existsById(memberId)) {
-            // 나중에 MEMBER_NOT_FOUND 같은 에러코드로 던집니다.
             throw new PostDomainException(PostErrorCode.MEMBER_NOT_FOUND);
         }
     }
