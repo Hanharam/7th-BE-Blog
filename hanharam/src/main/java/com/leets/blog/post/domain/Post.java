@@ -121,6 +121,12 @@ public class Post {
         }
     }
 
+    public void validateDeletionPermission(Long requesterId) {
+        if (!this.memberId.equals(requesterId)) {
+            throw new PostDomainException(PostErrorCode.UNAUTHORIZED_POST_UPDATE);
+        }
+    }
+
     // PostId 검증 -> 비즈니스 로직 많아지면 클래스로 빼기
     @Builder
     public record PostId(Long id) {

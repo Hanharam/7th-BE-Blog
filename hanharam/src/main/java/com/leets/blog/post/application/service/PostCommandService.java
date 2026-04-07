@@ -1,13 +1,17 @@
 package com.leets.blog.post.application.service;
 
 import com.leets.blog.post.application.port.in.commad.CreatePostUseCase;
+import com.leets.blog.post.application.port.in.commad.DeletePostUseCase;
 import com.leets.blog.post.application.port.in.commad.UpdatePostUseCase;
 import com.leets.blog.post.application.port.in.commad.dto.CreatePostCommand;
+import com.leets.blog.post.application.port.in.commad.dto.DeletePostCommand;
 import com.leets.blog.post.application.port.in.commad.dto.UpdatePostCommand;
 import com.leets.blog.post.application.port.out.LoadPostPort;
 import com.leets.blog.post.application.port.out.SavePostPort;
 import com.leets.blog.post.domain.Post;
 import com.leets.blog.post.domain.Post.PostId;
+import com.leets.blog.post.domain.exception.PostDomainException;
+import com.leets.blog.post.domain.exception.PostErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase {
+public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase {
 
     private final SavePostPort savePostPort;
     private final LoadPostPort loadPostPort;
@@ -43,7 +47,7 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase 
     public PostId updatePost(UpdatePostCommand command) {
 
         // 도메인 조회
-        Post post = loadPostPort.loadPost(new Post.PostId(command.postId()));
+        Post post = loadPostPort.findPost(new Post.PostId(command.postId()));
 
         post.update(
                 command.title(),
@@ -57,4 +61,16 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase 
         return savedPost.getPostId();
     }
 
+    @Override
+    public void deletePost(DeletePostCommand command) {
+        // 게시글 조회
+        Post post = loadPostPort.findById(command.postId())
+                .orElseThrow(() -> new PostDomainException(PostErrorCode.POST_NOT_FOUND));
+
+        // 권한 검증
+        post.validateDeletionPermission(command.requesterId());
+
+        // 삭제
+        savePostPort.deleteById(command.postId());
+    }
 }

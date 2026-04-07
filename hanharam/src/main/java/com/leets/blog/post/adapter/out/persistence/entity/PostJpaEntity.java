@@ -1,7 +1,7 @@
 package com.leets.blog.post.adapter.out.persistence.entity;
 
+import com.leets.blog.common.BaseEntity;
 import com.leets.blog.post.domain.Post;
-import common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
