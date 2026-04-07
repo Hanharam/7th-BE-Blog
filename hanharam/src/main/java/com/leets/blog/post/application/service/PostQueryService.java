@@ -14,8 +14,6 @@ import com.leets.blog.common.pagination.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,19 +46,6 @@ public class PostQueryService implements GetPostListUseCase, GetPostDetailUseCas
     }
 
     private PageResponse<PostInfo> convertToPostInfoPage(PageResponse<Post> postPage) {
-        // 게시글이 없는 경우 빈 리스트 반환
-        if (postPage.content().isEmpty()) {
-            return new PageResponse<>(
-                    Collections.emptyList(),
-                    postPage.page(),
-                    postPage.size(),
-                    postPage.totalElements(),
-                    postPage.totalPages(),
-                    postPage.hasNext(),
-                    postPage.hasPrevious()
-            );
-        }
-
         // 1. 게시글 작성자들의 ID 목록 추출
         Set<Long> memberIds = postPage.content().stream()
                 .map(Post::getMemberId)
@@ -70,23 +55,10 @@ public class PostQueryService implements GetPostListUseCase, GetPostDetailUseCas
         Map<Long, String> memberNicknameMap = loadMemberPort.findNicknamesByIds(memberIds);
 
         // 3. Post 도메인을 PostInfo DTO로 변환
-        List<PostInfo> postInfos = postPage.content().stream()
-                .map(post -> {
-                    String nickname = memberNicknameMap.getOrDefault(post.getMemberId(), "알 수 없음");
-                    return PostInfo.of(post, nickname);
-                })
-                .toList();
-
-        // 4. 변환된 DTO 리스트를 새로운 PageResponse로 재조립하여 반환
-        return new PageResponse<>(
-                postInfos,
-                postPage.page(),
-                postPage.size(),
-                postPage.totalElements(),
-                postPage.totalPages(),
-                postPage.hasNext(),
-                postPage.hasPrevious()
-        );
+        return postPage.map(post -> {
+            String nickname = memberNicknameMap.getOrDefault(post.getMemberId(), "알 수 없음");
+            return PostInfo.of(post, nickname);
+        });
     }
 
 }
