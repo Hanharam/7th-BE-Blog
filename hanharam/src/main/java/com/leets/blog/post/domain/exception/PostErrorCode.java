@@ -20,7 +20,8 @@ public enum PostErrorCode implements BaseCode {
 
     POST_NOT_OWNED(HttpStatus.FORBIDDEN, "POST-008", "본인의 게시글만 수정/삭제할 수 있습니다."),
     POST_SAVE_REQUIRES_AUTHOR(HttpStatus.BAD_REQUEST, "POST-009", "새 게시글 생성 시에는 작성자 정보가 필요합니다."),
-    POST_UPDATE_INVALID_CALL(HttpStatus.BAD_REQUEST, "POST-010", "이미 ID가 있는 게시글은 update용 save를 사용하세요.");
+    POST_UPDATE_INVALID_CALL(HttpStatus.BAD_REQUEST, "POST-010", "이미 ID가 있는 게시글은 update용 save를 사용하세요."),
+    MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "POST-011", "존재하지 않는 사용자 입니다.");
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

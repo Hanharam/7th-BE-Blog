@@ -32,4 +32,9 @@ public class MemberPersistenceAdapter implements LoadMemberPort {
                         MemberJpaEntity::getNickname
                 ));
     }
+
+    @Override
+    public boolean existsById(Long memberId) {
+        return memberRepository.existsById(memberId);
+    }
 }

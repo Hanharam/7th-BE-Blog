@@ -1,5 +1,6 @@
 package com.leets.blog.post.application.service;
 
+import com.leets.blog.member.application.port.out.out.LoadMemberPort;
 import com.leets.blog.post.application.port.in.commad.CreatePostUseCase;
 import com.leets.blog.post.application.port.in.commad.DeletePostUseCase;
 import com.leets.blog.post.application.port.in.commad.UpdatePostUseCase;
@@ -23,10 +24,14 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase,
 
     private final SavePostPort savePostPort;
     private final LoadPostPort loadPostPort;
+    private final LoadMemberPort loadMemberPort;
 
     // Post 생성
     @Override
     public PostId createPost(CreatePostCommand command) {
+
+        // [임시 검증] 멤버가 존재하는지 확인
+        validateMemberExists(command.memberId());
 
         // 도메인 생성
         Post newPost = Post.createPost(
@@ -46,6 +51,9 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase,
     @Override
     public PostId updatePost(UpdatePostCommand command) {
 
+        // [임시 검증] 멤버가 존재하는지 확인, 추후에 인가 시스템 적용
+        validateMemberExists(command.requesterId());
+
         // 도메인 조회
         Post post = loadPostPort.findPost(new Post.PostId(command.postId()));
 
@@ -63,6 +71,10 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase,
 
     @Override
     public void deletePost(DeletePostCommand command) {
+
+        // [임시 검증] 멤버가 존재하는지 확인
+        validateMemberExists(command.requesterId());
+
         // 게시글 조회
         Post post = loadPostPort.findById(command.postId())
                 .orElseThrow(() -> new PostDomainException(PostErrorCode.POST_NOT_FOUND));
@@ -72,5 +84,12 @@ public class PostCommandService implements CreatePostUseCase, UpdatePostUseCase,
 
         // 삭제
         savePostPort.deleteById(command.postId());
+    }
+
+    private void validateMemberExists(Long memberId) {
+        if (!loadMemberPort.existsById(memberId)) {
+            // 나중에 MEMBER_NOT_FOUND 같은 에러코드로 던집니다.
+            throw new PostDomainException(PostErrorCode.MEMBER_NOT_FOUND);
+        }
     }
 }

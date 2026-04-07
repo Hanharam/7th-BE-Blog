@@ -9,4 +9,6 @@ public interface LoadMemberPort {
 
     // 일괄 조회 (N+1 방지용)
     Map<Long, String> findNicknamesByIds(Set<Long> memberIds);
+
+    boolean existsById(Long memberId);
 }
