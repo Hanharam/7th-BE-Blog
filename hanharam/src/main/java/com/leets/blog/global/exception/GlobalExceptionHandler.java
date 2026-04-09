@@ -36,10 +36,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Object> onTrowException(BusinessException e, WebRequest request) {
-        log.warn("[BUSINESS EXCEPTION domain={}, code={}, message={}", e.getDomain(), e.getBaseCode().getCode(),
+        log.warn("[BUSINESS EXCEPTION] domain={}, code={}, message={}", e.getDomain(), e.getBaseCode().getCode(),
                 e.getMessage(), e);
 
-        return buildResponse(e, e.getBaseCode(), HttpHeaders.EMPTY, request, e.getMessage());
+        return buildResponse(e, e.getBaseCode(), HttpHeaders.EMPTY, request, null);
     }
 
     /**
