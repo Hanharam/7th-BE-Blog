@@ -23,12 +23,14 @@ public class ReportJpaEntity extends BaseEntity {
     @Column(name = "reporter_id", nullable = false)
     private Long reporterId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "target_type", nullable = false)
     private ReportTargetType targetType;
 
     @Column(name = "target_id", nullable = false)
     private Long targetId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "report_status", nullable = false)
     private ReportStatus reportStatus;
 
