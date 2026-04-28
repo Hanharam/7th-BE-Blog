@@ -4,8 +4,10 @@ import com.leets.blog.comment.application.port.out.LoadCommentPort;
 import com.leets.blog.post.application.port.out.LoadPostPort;
 import com.leets.blog.report.application.port.in.command.ReportCommentUseCase;
 import com.leets.blog.report.application.port.in.command.ReportPostUseCase;
+import com.leets.blog.report.application.port.in.command.ReviewReportUseCase;
 import com.leets.blog.report.application.port.in.command.dto.ReportCommentCommand;
 import com.leets.blog.report.application.port.in.command.dto.ReportPostCommand;
+import com.leets.blog.report.application.port.in.command.dto.ReviewReportCommand;
 import com.leets.blog.report.application.port.out.LoadReportPort;
 import com.leets.blog.report.application.port.out.SaveReportPort;
 import com.leets.blog.report.domain.Report;
@@ -19,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ReportCommandService implements ReportPostUseCase, ReportCommentUseCase {
+public class ReportCommandService implements ReportPostUseCase, ReportCommentUseCase, ReviewReportUseCase {
 
     private final SaveReportPort saveReportPort;
     private final LoadReportPort loadReportPort;
@@ -44,6 +46,13 @@ public class ReportCommandService implements ReportPostUseCase, ReportCommentUse
 
         // 중복 신고 확인 및 저장
         checkDuplicateAndSaveReport(command.reporterId(), ReportTargetType.POST, command.postId(), command.reason());
+    }
+
+    @Override
+    public void review(ReviewReportCommand command) {
+        Report report = loadReportPort.findReport(new Report.ReportId(command.reportId()));
+        report.markAsReviewing();
+        saveReportPort.save(report);
     }
 
     /**

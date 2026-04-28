@@ -55,6 +55,10 @@ public class ReportJpaEntity extends BaseEntity {
                 .build();
     }
 
+    public void update(Report report) {
+        this.reportStatus = report.getReportStatus();
+    }
+
     // JPA Entity -> Domain
     public Report toDomain() {
         return Report.reconstruct(

@@ -1,6 +1,5 @@
 package com.leets.blog.report.domain.exception;
 
-import com.leets.blog.global.exception.constant.CommonErrorCode;
 import com.leets.blog.global.response.code.BaseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +20,9 @@ public enum ReportErrorCode implements BaseCode {
     ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "REPORT-008", "이미 처리된 신고입니다."),
     POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "REPORT-009", "신고한 게시글을 찾을 수 없습니다."),
     REPORT_ALREADY_EXISTS(HttpStatus.CONFLICT, "REPORT-010", "이미 신고한 게시글/댓글입니다."),
-    COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "REPORT-011", "신고한 댓글을 찾을 수 없습니다.");
+    COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "REPORT-011", "신고한 댓글을 찾을 수 없습니다."),
+    REPORT_NOT_FOUND(HttpStatus.BAD_REQUEST, "REPORT-012", "신고를 찾을 수 없습니다."),
+    INVALID_STATUS_TRANSITION(HttpStatus.BAD_REQUEST, "REPORT-013", "해당 상태로 변경할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

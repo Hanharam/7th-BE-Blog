@@ -90,6 +90,14 @@ public class Report{
         this.reportStatus = newStatus;
     }
 
+    public void markAsReviewing() {
+        if (this.reportStatus != ReportStatus.PENDING) {
+            throw new ReportDomainException(ReportErrorCode.INVALID_STATUS_TRANSITION);
+        }
+
+        this.reportStatus = ReportStatus.REVIEWING;
+    }
+
     // 신고자 아이디 검증
     private static void validateReporterId(Long reporterId) {
         if (reporterId == null || reporterId <= 0) {
