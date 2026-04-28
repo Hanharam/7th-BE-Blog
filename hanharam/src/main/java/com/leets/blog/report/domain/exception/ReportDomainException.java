@@ -2,7 +2,6 @@ package com.leets.blog.report.domain.exception;
 
 import com.leets.blog.global.exception.BusinessException;
 import com.leets.blog.global.exception.constant.Domain;
-import com.leets.blog.report.domain.Report;
 
 public class ReportDomainException extends BusinessException {
     public ReportDomainException(ReportErrorCode errorCode) {

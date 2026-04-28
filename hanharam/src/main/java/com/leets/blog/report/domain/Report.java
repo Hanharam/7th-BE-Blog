@@ -78,18 +78,6 @@ public class Report{
                 .build();
     }
 
-    // 관리자가 신고 상태를 처리
-    public void processReport(ReportStatus newStatus) {
-        validateReportStatus(newStatus);
-
-        // 이미 처리된 신고를 다시 처리할 수 없게 막는 도메인 규칙 예시
-        if (this.reportStatus == ReportStatus.APPROVED || this.reportStatus == ReportStatus.REJECTED) {
-            throw new ReportDomainException(ReportErrorCode.ALREADY_PROCESSED);
-        }
-
-        this.reportStatus = newStatus;
-    }
-
     public void markAsReviewing() {
         if (this.reportStatus != ReportStatus.PENDING) {
             throw new ReportDomainException(ReportErrorCode.INVALID_STATUS_TRANSITION);
@@ -126,14 +114,6 @@ public class Report{
             throw new ReportDomainException(ReportErrorCode.INVALID_REASON_SIZE);
         }
     }
-    // 신고 상태 검증
-    private static void validateReportStatus(ReportStatus status) {
-        if (status == null) {
-            throw new ReportDomainException(ReportErrorCode.INVALID_REPORT_STATUS);
-        }
-    }
-
-
     public record ReportId(Long id) {
         public ReportId {
             if (id <= 0) {

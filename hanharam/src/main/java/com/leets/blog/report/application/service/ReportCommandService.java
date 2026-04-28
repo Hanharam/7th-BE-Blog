@@ -31,8 +31,9 @@ public class ReportCommandService implements ReportPostUseCase, ReportCommentUse
     @Override
     public void report(ReportCommentCommand command) {
         // 댓글 존재 확인
-        loadCommentPort.findById(command.commentId())
-                .orElseThrow(() -> new ReportDomainException(ReportErrorCode.COMMENT_NOT_FOUND));
+        if (!loadCommentPort.existsById(command.commentId())) {
+            throw new ReportDomainException(ReportErrorCode.COMMENT_NOT_FOUND);
+        }
 
         // 중복 신고 확인 및 저장
         checkDuplicateAndSaveReport(command.reporterId(), ReportTargetType.COMMENT, command.commentId(), command.reason());
