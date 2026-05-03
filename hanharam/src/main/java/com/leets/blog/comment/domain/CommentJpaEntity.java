@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -35,5 +36,10 @@ public class CommentJpaEntity extends BaseEntity {
         this.memberId = memberId;
         this.content = content;
         this.parentId = parentId;
+    }
+
+    // todo: toDomain 임시 설정 -> Comment 도메인 생성 후 메서드 작성하기
+    public Comment toDomain() {
+        return null;
     }
 }

@@ -9,5 +9,6 @@ public enum Domain {
     AUTHENTICATION,
     COMMENT,
     POST,
-    MEMBER
+    MEMBER,
+    REPORT
 }
