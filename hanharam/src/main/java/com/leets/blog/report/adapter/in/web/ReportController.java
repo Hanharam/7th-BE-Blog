@@ -1,5 +1,7 @@
 package com.leets.blog.report.adapter.in.web;
 
+import com.leets.blog.global.security.MemberPrincipal;
+import com.leets.blog.global.security.annotation.CurrentMember;
 import com.leets.blog.report.adapter.in.web.dto.request.CreateReportRequest;
 import com.leets.blog.report.application.port.in.command.ReportCommentUseCase;
 import com.leets.blog.report.application.port.in.command.ReportPostUseCase;
@@ -26,9 +28,9 @@ public class ReportController {
     public void reportPost(
             @PathVariable Long postId,
             @Valid @RequestBody CreateReportRequest request,
-            Long reporterId
+            @CurrentMember MemberPrincipal memberPrincipal
     ) {
-        reportPostUseCase.report(request.toPostCommand(postId, reporterId));
+        reportPostUseCase.report(request.toPostCommand(postId, memberPrincipal.getMemberId()));
     }
 
     @PostMapping("/comments/{commentId}")
@@ -36,9 +38,9 @@ public class ReportController {
     public void reportComment(
             @PathVariable Long commentId,
             @Valid @RequestBody CreateReportRequest request,
-            Long reporterId
+            @CurrentMember MemberPrincipal memberPrincipal
     ) {
-        reportCommentUseCase.report(request.toCommentCommand(commentId, reporterId));
+        reportCommentUseCase.report(request.toCommentCommand(commentId, memberPrincipal.getMemberId()));
     }
 
     @PatchMapping("/{reportId}/reviewing")

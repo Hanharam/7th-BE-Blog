@@ -1,17 +1,21 @@
 package com.leets.blog.member.adapter.out.persistence;
 
+import com.leets.blog.member.adapter.out.persistence.entity.MemberJpaEntity;
+import com.leets.blog.member.application.port.out.LoadMemberAuthPort;
+import com.leets.blog.member.application.port.out.SaveMemberAuthPort;
 import com.leets.blog.member.application.port.out.out.LoadMemberPort;
-import com.leets.blog.member.domain.MemberJpaEntity;
+import com.leets.blog.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class MemberPersistenceAdapter implements LoadMemberPort {
+public class MemberPersistenceAdapter implements LoadMemberPort, LoadMemberAuthPort, SaveMemberAuthPort {
 
     private final MemberRepository memberRepository;
 
@@ -36,5 +40,22 @@ public class MemberPersistenceAdapter implements LoadMemberPort {
     @Override
     public boolean existsById(Long memberId) {
         return memberRepository.existsById(memberId);
+    }
+
+    @Override
+    public Optional<Member> findByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .map(MemberJpaEntity::toDomain);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Member save(Member member) {
+        MemberJpaEntity saved = memberRepository.save(MemberJpaEntity.from(member));
+        return saved.toDomain();
     }
 }

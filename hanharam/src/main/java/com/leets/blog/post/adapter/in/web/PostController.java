@@ -1,5 +1,7 @@
 package com.leets.blog.post.adapter.in.web;
 
+import com.leets.blog.global.security.MemberPrincipal;
+import com.leets.blog.global.security.annotation.CurrentMember;
 import com.leets.blog.post.adapter.in.web.dto.request.CreatePostRequest;
 import com.leets.blog.post.adapter.in.web.dto.request.UpdatePostRequest;
 import com.leets.blog.post.application.port.in.commad.CreatePostUseCase;
@@ -27,9 +29,9 @@ public class PostController {
     @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
     public PostId createPost(
             @Valid @RequestBody CreatePostRequest request,
-            Long memberId
+            @CurrentMember MemberPrincipal memberPrincipal
     ) {
-        return createPostUseCase.createPost(request.toCommand(memberId));
+        return createPostUseCase.createPost(request.toCommand(memberPrincipal.getMemberId()));
     }
 
     @PatchMapping("/{postId}")
@@ -37,19 +39,19 @@ public class PostController {
     public PostId updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest request,
-            Long memberId
+            @CurrentMember MemberPrincipal memberPrincipal
     ) {
 
-        return updatePostUseCase.updatePost(request.toCommand(postId, memberId));
+        return updatePostUseCase.updatePost(request.toCommand(postId, memberPrincipal.getMemberId()));
     }
 
     @DeleteMapping("/{postId}")
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     public void deletePost(
             @PathVariable Long postId,
-            Long requesterId
+            @CurrentMember MemberPrincipal memberPrincipal
     ) {
-        DeletePostCommand command = new DeletePostCommand(postId,requesterId);
+        DeletePostCommand command = new DeletePostCommand(postId, memberPrincipal.getMemberId());
         deletePostUseCase.deletePost(command);
     }
 }
