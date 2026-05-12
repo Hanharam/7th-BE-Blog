@@ -8,6 +8,8 @@ import com.leets.blog.report.application.port.in.command.ReportPostUseCase;
 import com.leets.blog.report.application.port.in.command.ReviewReportUseCase;
 import com.leets.blog.report.application.port.in.command.dto.ReviewReportCommand;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/reports")
 @RequiredArgsConstructor
 @Tag(name = "Report | 신고 command", description = "신고 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class ReportController {
 
     private final ReportCommentUseCase reportCommentUseCase;
@@ -28,6 +31,7 @@ public class ReportController {
     public void reportPost(
             @PathVariable Long postId,
             @Valid @RequestBody CreateReportRequest request,
+            @Parameter(hidden = true)
             @CurrentMember MemberPrincipal memberPrincipal
     ) {
         reportPostUseCase.report(request.toPostCommand(postId, memberPrincipal.getMemberId()));
@@ -38,6 +42,7 @@ public class ReportController {
     public void reportComment(
             @PathVariable Long commentId,
             @Valid @RequestBody CreateReportRequest request,
+            @Parameter(hidden = true)
             @CurrentMember MemberPrincipal memberPrincipal
     ) {
         reportCommentUseCase.report(request.toCommentCommand(commentId, memberPrincipal.getMemberId()));

@@ -5,6 +5,7 @@ import com.leets.blog.authentication.adapter.in.web.dto.request.SignUpRequest;
 import com.leets.blog.authentication.adapter.in.web.dto.response.AuthResponse;
 import com.leets.blog.authentication.application.port.in.command.AuthenticateMemberUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication | 인증", description = "회원가입 및 로그인 API")
+@SecurityRequirements
 public class AuthenticationController {
 
     private final AuthenticateMemberUseCase authenticateMemberUseCase;
