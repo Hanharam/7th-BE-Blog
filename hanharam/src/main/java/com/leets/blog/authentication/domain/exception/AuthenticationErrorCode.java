@@ -22,7 +22,8 @@ public enum AuthenticationErrorCode implements BaseCode {
     INVALID_PROFILE_INPUT(HttpStatus.BAD_REQUEST, "AUTH-011", "이름과 닉네임은 필수입니다."),
     ACCOUNT_LINK_REQUIRED(HttpStatus.CONFLICT, "AUTH-012", "동일한 이메일의 계정이 존재합니다. 계정 연동 페이지에서 연동해주세요."),
     OAUTH_TOKEN_VERIFICATION_FAILED(HttpStatus.UNAUTHORIZED, "AUTH-013", "OAuth 인증 처리에 실패했습니다."),
-    OAUTH_CONFIGURATION_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-014", "OAuth 설정이 누락되었습니다.");
+    OAUTH_CONFIGURATION_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-014", "OAuth 설정이 누락되었습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH-015", "저장된 리프레시 토큰을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

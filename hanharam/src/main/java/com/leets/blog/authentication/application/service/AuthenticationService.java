@@ -6,11 +6,14 @@ import com.leets.blog.authentication.application.port.in.command.dto.LoginComman
 import com.leets.blog.authentication.application.port.in.command.dto.LoginResult;
 import com.leets.blog.authentication.application.port.in.command.dto.RefreshTokenCommand;
 import com.leets.blog.authentication.application.port.in.command.dto.SignUpCommand;
+import com.leets.blog.authentication.application.port.out.ConsumeMemberRefreshTokenPort;
 import com.leets.blog.authentication.application.port.out.LoadMemberOAuthPort;
+import com.leets.blog.authentication.application.port.out.SaveMemberRefreshTokenPort;
 import com.leets.blog.authentication.application.port.out.SaveMemberOAuthPort;
 import com.leets.blog.authentication.application.port.out.VerifyKakaoOAuthPort;
 import com.leets.blog.authentication.application.port.out.dto.KakaoOAuthUserInfo;
 import com.leets.blog.authentication.domain.MemberOAuth;
+import com.leets.blog.authentication.domain.MemberRefreshToken;
 import com.leets.blog.authentication.domain.enums.OAuthProvider;
 import com.leets.blog.authentication.domain.exception.AuthenticationDomainException;
 import com.leets.blog.authentication.domain.exception.AuthenticationErrorCode;
@@ -41,6 +44,8 @@ public class AuthenticationService implements AuthenticateMemberUseCase {
     private final SaveMemberAuthPort saveMemberAuthPort;
     private final LoadMemberOAuthPort loadMemberOAuthPort;
     private final SaveMemberOAuthPort saveMemberOAuthPort;
+    private final SaveMemberRefreshTokenPort saveMemberRefreshTokenPort;
+    private final ConsumeMemberRefreshTokenPort consumeMemberRefreshTokenPort;
     private final VerifyKakaoOAuthPort verifyKakaoOAuthPort;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -94,11 +99,17 @@ public class AuthenticationService implements AuthenticateMemberUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public LoginResult refreshTokens(RefreshTokenCommand command) {
-        Long memberId = jwtTokenProvider.parseRefreshToken(command.refreshToken());
+        JwtTokenProvider.ParsedRefreshToken parsedRefreshToken = jwtTokenProvider.parseRefreshToken(command.refreshToken());
+        boolean consumed = consumeMemberRefreshTokenPort.consume(
+                parsedRefreshToken.tokenId(),
+                parsedRefreshToken.memberId()
+        );
+        if (!consumed) {
+            throw new AuthenticationDomainException(AuthenticationErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
 
-        Member member = loadMemberAuthPort.findById(memberId)
+        Member member = loadMemberAuthPort.findById(parsedRefreshToken.memberId())
                 .orElseThrow(() -> new AuthenticationDomainException(AuthenticationErrorCode.MEMBER_NOT_FOUND));
 
         return issueTokens(member);
@@ -106,13 +117,22 @@ public class AuthenticationService implements AuthenticateMemberUseCase {
 
     private LoginResult issueTokens(Member member) {
         List<String> roles = List.of(member.getRole().name());
+        JwtTokenProvider.IssuedRefreshToken issuedRefreshToken = jwtTokenProvider.createRefreshToken(member.getId());
+
+        saveMemberRefreshTokenPort.save(
+                MemberRefreshToken.create(
+                        member.getId(),
+                        issuedRefreshToken.tokenId(),
+                        issuedRefreshToken.expiresAt()
+                )
+        );
 
         return LoginResult.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .accessToken(jwtTokenProvider.createAccessToken(member.getId(), roles))
-                .refreshToken(jwtTokenProvider.createRefreshToken(member.getId()))
+                .refreshToken(issuedRefreshToken.token())
                 .build();
     }
 
