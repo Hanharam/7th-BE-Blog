@@ -36,7 +36,6 @@ public class MemberRefreshTokenJpaEntity extends BaseEntity {
     @Column(name = "token_id", nullable = false, length = 100)
     private String tokenId;
 
-    // 만료 시각을 남겨두면 운영에서 만료 토큰 정리 배치를 붙이기 쉽습니다.
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
