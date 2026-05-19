@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member_oauth")
+@Table(
+        name = "member_oauth",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_provider_provider_id",
+                        columnNames = {"provider", "provider_id"}
+                )
+        }
+)
 public class MemberOAuthJpaEntity extends BaseEntity {
 
     @Id

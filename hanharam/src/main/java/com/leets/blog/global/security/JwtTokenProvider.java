@@ -68,8 +68,17 @@ public class JwtTokenProvider {
         return validateToken(token, accessTokenSecret);
     }
 
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, refreshTokenSecret);
+    }
+
     public Long parseAccessToken(String token) {
         return Long.parseLong(parseClaims(token, accessTokenSecret).getSubject());
+    }
+
+    public Long parseRefreshToken(String token) {
+        validateRefreshToken(token);
+        return Long.parseLong(parseClaims(token, refreshTokenSecret).getSubject());
     }
 
     public List<String> getRolesFromAccessToken(String token) {

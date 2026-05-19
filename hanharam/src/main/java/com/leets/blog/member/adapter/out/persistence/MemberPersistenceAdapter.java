@@ -43,6 +43,12 @@ public class MemberPersistenceAdapter implements LoadMemberPort, LoadMemberAuthP
     }
 
     @Override
+    public Optional<Member> findById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .map(MemberJpaEntity::toDomain);
+    }
+
+    @Override
     public Optional<Member> findByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .map(MemberJpaEntity::toDomain);

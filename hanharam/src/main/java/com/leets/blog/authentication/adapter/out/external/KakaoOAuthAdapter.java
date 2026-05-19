@@ -5,11 +5,14 @@ import com.leets.blog.authentication.application.port.out.VerifyKakaoOAuthPort;
 import com.leets.blog.authentication.application.port.out.dto.KakaoOAuthUserInfo;
 import com.leets.blog.authentication.domain.exception.AuthenticationDomainException;
 import com.leets.blog.authentication.domain.exception.AuthenticationErrorCode;
-import java.util.Objects;
+import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -39,10 +42,18 @@ public class KakaoOAuthAdapter implements VerifyKakaoOAuthPort {
         this.redirectUri = redirectUri;
     }
 
+    @PostConstruct
+    public void validateKakaoConfig() {
+        if (clientId == null || clientId.isBlank() || redirectUri == null || redirectUri.isBlank()) {
+            throw new AuthenticationDomainException(
+                    AuthenticationErrorCode.OAUTH_CONFIGURATION_MISSING,
+                    "카카오 OAuth 설정이 누락되었습니다."
+            );
+        }
+    }
+
     @Override
     public KakaoOAuthUserInfo verifyAuthorizationCode(String authorizationCode) {
-        validateKakaoConfig();
-
         String accessToken = exchangeAuthorizationCode(authorizationCode);
         KakaoUserResponse userResponse = getUserInfo(accessToken);
 
@@ -86,7 +97,8 @@ public class KakaoOAuthAdapter implements VerifyKakaoOAuthPort {
                     .body(formData)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (req, res) -> {
-                        log.error("Kakao 토큰 교환 실패: status={}", res.getStatusCode());
+                        String responseBody = readResponseBody(res);
+                        log.error("Kakao 토큰 교환 실패: status={}, body={}", res.getStatusCode(), responseBody);
                         throw new AuthenticationDomainException(AuthenticationErrorCode.OAUTH_TOKEN_VERIFICATION_FAILED);
                     })
                     .body(KakaoTokenResponse.class);
@@ -96,8 +108,6 @@ public class KakaoOAuthAdapter implements VerifyKakaoOAuthPort {
             }
 
             return response.accessToken();
-        } catch (AuthenticationDomainException e) {
-            throw e;
         } catch (Exception e) {
             log.error("Kakao 토큰 교환 중 오류 발생", e);
             throw new AuthenticationDomainException(AuthenticationErrorCode.OAUTH_TOKEN_VERIFICATION_FAILED);
@@ -111,24 +121,23 @@ public class KakaoOAuthAdapter implements VerifyKakaoOAuthPort {
                     .header("Authorization", "Bearer " + accessToken)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (req, res) -> {
-                        log.error("Kakao 사용자 정보 조회 실패: status={}", res.getStatusCode());
+                        String responseBody = readResponseBody(res);
+                        log.error("Kakao 사용자 정보 조회 실패: status={}, body={}", res.getStatusCode(), responseBody);
                         throw new AuthenticationDomainException(AuthenticationErrorCode.OAUTH_TOKEN_VERIFICATION_FAILED);
                     })
                     .body(KakaoUserResponse.class);
-        } catch (AuthenticationDomainException e) {
-            throw e;
         } catch (Exception e) {
             log.error("Kakao 사용자 정보 조회 중 오류 발생", e);
             throw new AuthenticationDomainException(AuthenticationErrorCode.OAUTH_TOKEN_VERIFICATION_FAILED);
         }
     }
 
-    private void validateKakaoConfig() {
-        if (clientId == null || clientId.isBlank() || redirectUri == null || redirectUri.isBlank()) {
-            throw new AuthenticationDomainException(
-                    AuthenticationErrorCode.OAUTH_CONFIGURATION_MISSING,
-                    "카카오 OAuth 설정이 누락되었습니다."
-            );
+    private String readResponseBody(ClientHttpResponse response) {
+        try {
+            return new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Kakao 응답 body 읽기 실패", e);
+            return "<unreadable>";
         }
     }
 
