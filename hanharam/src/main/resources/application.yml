@@ -3,3 +3,9 @@ spring:
     name: blog
   profiles:
     active: local
+
+jwt:
+  access-token-secret: "local-access-token-secret-key-for-blog-project-2026"
+  refresh-token-secret: "local-refresh-token-secret-key-for-blog-project-2026"
+  access-token-validity-in-seconds: 3600
+  refresh-token-validity-in-seconds: 1209600
