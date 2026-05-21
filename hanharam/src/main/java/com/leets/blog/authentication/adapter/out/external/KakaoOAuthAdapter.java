@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -31,12 +32,12 @@ public class KakaoOAuthAdapter implements VerifyKakaoOAuthPort {
     private final String redirectUri;
 
     public KakaoOAuthAdapter(
-            RestClient.Builder restClientBuilder,
+            @Qualifier("kakaoRestClient") RestClient restClient,
             @Value("${app.oauth.kakao.client-id:}") String clientId,
             @Value("${app.oauth.kakao.client-secret:}") String clientSecret,
             @Value("${app.oauth.kakao.redirect-uri:}") String redirectUri
     ) {
-        this.restClient = restClientBuilder.build();
+        this.restClient = restClient;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
