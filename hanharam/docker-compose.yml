@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. MySQL 데이터베이스 컨테이너
+  db:
+    image: mysql:8.0
+    container_name: leets-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-1234}
+      MYSQL_DATABASE: blog
+    volumes:
+      - db_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  # 2. Spring Boot 애플리케이션 컨테이너
+  app:
+    image: ${DOCKER_USERNAME}/leets-blog:latest
+    container_name: leets-blog-server
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/blog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-1234}
+    depends_on:
+      - db
+
+volumes:
+  db_data:
