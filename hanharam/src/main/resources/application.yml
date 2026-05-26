@@ -9,3 +9,9 @@ jwt:
   refresh-token-secret: "local-refresh-token-secret-key-for-blog-project-2026"
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 1209600
+
+app:
+  oauth:
+    kakao:
+      connect-timeout-millis: 3000
+      read-timeout-millis: 5000

@@ -9,9 +9,12 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,24 +55,51 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken(Long memberId) {
+    public IssuedRefreshToken createRefreshToken(Long memberId) {
         Date now = new Date();
         Date validityDate = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
+        String tokenId = UUID.randomUUID().toString();
 
-        return Jwts.builder()
+        String token = Jwts.builder()
+                .id(tokenId)
                 .subject(String.valueOf(memberId))
                 .issuedAt(now)
                 .expiration(validityDate)
                 .signWith(refreshTokenSecret)
                 .compact();
+
+        return new IssuedRefreshToken(
+                token,
+                tokenId,
+                toLocalDateTime(validityDate)
+        );
     }
 
     public boolean validateAccessToken(String token) {
         return validateToken(token, accessTokenSecret);
     }
 
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, refreshTokenSecret);
+    }
+
     public Long parseAccessToken(String token) {
         return Long.parseLong(parseClaims(token, accessTokenSecret).getSubject());
+    }
+
+    public ParsedRefreshToken parseRefreshToken(String token) {
+        validateRefreshToken(token);
+        Claims claims = parseClaims(token, refreshTokenSecret);
+        String tokenId = claims.getId();
+        if (tokenId == null || tokenId.isBlank()) {
+            throw new AuthenticationDomainException(AuthenticationErrorCode.INVALID_JWT);
+        }
+
+        return new ParsedRefreshToken(
+                Long.parseLong(claims.getSubject()),
+                tokenId,
+                toLocalDateTime(claims.getExpiration())
+        );
     }
 
     public List<String> getRolesFromAccessToken(String token) {
@@ -108,5 +138,25 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    private LocalDateTime toLocalDateTime(Date date) {
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
+    public record IssuedRefreshToken(
+            String token,
+            String tokenId,
+            LocalDateTime expiresAt
+    ) {
+    }
+
+    public record ParsedRefreshToken(
+            Long memberId,
+            String tokenId,
+            LocalDateTime expiresAt
+    ) {
     }
 }
