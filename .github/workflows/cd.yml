@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 한하람/8주차
   workflow_dispatch:
 
 concurrency:
