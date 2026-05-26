@@ -1,24 +1,40 @@
-.DS_Store
-
-# IDE
-.idea/
-.vscode/
-*.iml
-
-# Java/Gradle build outputs
-.gradle/
+HELP.md
+.gradle
 build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
 out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-# Maven build outputs
-target/
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
-# Logs
-*.log
+### VS Code ###
+.vscode/
 
-# Environment files
-.env
-.env.*
-
-# OS generated files
-Thumbs.db
+### Custom Configuration Files ###
+application-local.yml
