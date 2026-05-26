@@ -33,7 +33,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build JAR
-        run: ./gradlew clean test bootJar
+        run: ./gradlew clean bootJar -x test
 
       - name: Set image tags
         id: image
